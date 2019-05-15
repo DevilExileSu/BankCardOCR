@@ -119,9 +119,6 @@ class Ui_MainWindow(object):
         self.messageBox = QMessageBox()
         self.messageBox.setStyleSheet("QMessageBox{background-color:#CE0000;border:none;color:#000000;font-size:15px;}")
 
-
-#三个图元 原图是一个，去掉背景是一个，手动定位优惠创建一个
-
     def close(self):
         reply = self.messageBox.question(None,"Quit","确定要关闭该程序？",QMessageBox.Yes | QMessageBox.No,QMessageBox.No)
         if reply == QMessageBox.Yes:
@@ -200,8 +197,6 @@ class Ui_MainWindow(object):
             self.graphicsView.Scene()
             self.graphicsView.image_item.setStart(True)
             print(self.graphicsView.image_item.isStart)
-            # self.graphicsView_3Scene.clear()
-
         elif self.radioButton.isChecked() == True:
             self.graphicsView.image_item.setStart(False)
             self.graphicsView.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.ArrowCursor))

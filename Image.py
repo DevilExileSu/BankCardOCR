@@ -43,7 +43,6 @@ class Image:
         self.W_start = start
         self.W_end = start+length
 
-        #cv2.rectangle(self.remove_back_img,(self.W_start,self.H_start),(self.W_end,self.H_end),(0,0,255),3)
         return num_img[:,start:start+length]
 
 
@@ -116,7 +115,6 @@ class Image:
                 return ans,ans+label_H
 
     def position(self,img):
-        #img = cv2.resize(img,(self.HEIGHT,self.WIDTH),0,0,cv2.INTER_NEAREST)
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         gray_img = cv2.dilate(gray_img,None,iterations=2)
         gray_img = cv2.erode(gray_img,None,iterations=2)
