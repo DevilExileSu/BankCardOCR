@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox,QDesktopWidget,QGraphicsPixmapItem,QFileDialog,QGraphicsScene,QApplication
 from PyQt5.QtGui import QPixmap,QImage
 from PyQt5.QtCore import Qt
-from GUI.graphics import GraphicsView,GraphicsPixmapItem
+from graphics import GraphicsView,GraphicsPixmapItem
 import cv2
 import numpy as np
 from Image import Image
