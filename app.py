@@ -19,7 +19,7 @@ from Image import Image
 from predict import single_recognition
 
 
-model_dir = '../model/train_weight.h5'
+model_dir = 'model/train_weight.h5'
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
