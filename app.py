@@ -7,15 +7,19 @@
 # WARNING! All changes made in this file will be lost!
 
 import sys
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox,QDesktopWidget,QGraphicsPixmapItem,QFileDialog,QGraphicsScene,QApplication
 from PyQt5.QtGui import QPixmap,QImage
-from Image import *
+from PyQt5.QtCore import Qt
+from GUI.graphics import GraphicsView,GraphicsPixmapItem
 import cv2
 import numpy as np
-from graphics import GraphicsView,GraphicsPixmapItem
+from Image import Image
+from predict import single_recognition
 
 
+model_dir = '../model/train_weight.h5'
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -47,14 +51,18 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.pushButton)
         self.graphicsView = GraphicsView(self.centralwidget)
         self.graphicsView.setEnabled(True)
-        self.graphicsView.setGeometry(QtCore.QRect(10, 180, 652, 352))
+        self.graphicsView.setGeometry(QtCore.QRect(10, 180, 552, 352))
+        self.graphicsView.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)   
+        self.graphicsView.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.graphicsView.setObjectName("graphicsView")
         self.graphicsView_3 = QtWidgets.QGraphicsView(self.centralwidget)
         self.graphicsView_3.setGeometry(QtCore.QRect(10, 30, 502, 52))
         self.graphicsView_3.setObjectName("graphicsView_3")
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(10, 100, 500, 50))
+        self.label = QtWidgets.QTextEdit(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(10, 100, 502, 52))
         self.label.setObjectName("label")
+        self.label.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)   
+
         self.radioButton = QtWidgets.QRadioButton(self.centralwidget)
         self.radioButton.setGeometry(QtCore.QRect(550, 150, 112, 23))
         self.radioButton.setObjectName("radioButton")
@@ -80,6 +88,10 @@ class Ui_MainWindow(object):
         MainWindow.setStyleSheet("QMainWindow{background:#66B3FF}")
         self.graphicsView.setStyleSheet("QGraphicsView{background:#66B3FF}")
         self.graphicsView_3.setStyleSheet("QGraphicsView{background:#66B3FF}")
+        self.graphicsView.setLineWidth(3)
+        self.graphicsView.setMidLineWidth(5)
+        self.graphicsView_3.setLineWidth(3)
+        self.graphicsView_3.setMidLineWidth(5)
 
         self.pushButton_3.setText(_translate("MainWindow", "打开图片"))
         self.pushButton_3.setIcon(QtGui.QIcon("icons/open.svg"))
@@ -105,17 +117,30 @@ class Ui_MainWindow(object):
         self.pushButton.setStyleSheet("QPushButton{background:#CE0000;border:none;color:#000000;font-size:15px;}"
         "QPushButton:hover{background-color:#8B0000;}")
 
+        self.label.setText("银行卡号")
+        self.label.setFrameShape(QtWidgets.QFrame.Box)
 
-        self.label.setText(_translate("MainWindow", "TextLabel"))
+
+        self.label.setLineWidth(3)
+        self.label.setMidLineWidth(5)
+        font = QtGui.QFont() 
+        font.setBold(True) 
+        font.setPointSize(13) 
+        font.setWeight(75) 
+        self.label.setFont(font) 
+        self.label.setAlignment(Qt.AlignCenter)
+        
+        # self.label.setText(_translate("MainWindow", "TextLabel"))
         self.radioButton.setText(_translate("MainWindow", "手动定位"))
         self.pushButton.clicked.connect(self.close)
         self.pushButton_3.clicked.connect(self.clickOpen)
         self.pushButton_2.clicked.connect(self.clickLocation)
+        self.pushButton_4.clicked.connect(self.recognition)     
         self.radioButton.setCheckable(True)
         self.radioButton.toggled.connect(self.checkbox)
         
 
-        self.label.setText(_translate("MainWindow", "TextLabel"))
+        # self.label.setText(_translate("MainWindow", "TextLabel"))
         self.messageBox = QMessageBox()
         self.messageBox.setStyleSheet("QMessageBox{background-color:#CE0000;border:none;color:#000000;font-size:15px;}")
 
@@ -129,31 +154,31 @@ class Ui_MainWindow(object):
         imgName,imgType = QFileDialog.getOpenFileName(None,"打开图片","","*.jpg;;*.png;;*.jpeg;;All Files(*)")
         img = cv2.imread(imgName)
         self.image = Image(img)
+        self.img = self.image.pos_img
         H,W,C = self.image.img.shape
         P = 3 * W
         qimage = QImage(self.image.img.data,W,H,P,QImage.Format_RGB888).rgbSwapped()
         pixmap = QPixmap.fromImage(qimage)
-        self.graphicsView.setSceneRect(0,0,650,350)
+        self.graphicsView.setSceneRect(0,0,550,350)
         self.graphicsView.setItem(pixmap)
         self.graphicsView.Scene()
         self.graphicsView.setStyleSheet("QGraphicsView{background-color:#66B3FF}")
 
-        if self.radioButton.isChecked() == True:
-            self.graphicsView.image_item.setStart(True)
+        # if self.radioButton.isChecked() == True:
+        #     self.graphicsView.image_item.setStart(True)
 
 
     def clickLocation(self):
         if self.radioButton.isChecked() == False:
             self.graphicsView.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.ArrowCursor))
-
             Img = self.image.pos_img
+            self.img = Img
             Img = cv2.resize(Img,(500,50),cv2.INTER_NEAREST)
             H,W,_ = Img.shape
             P = 3 * W
             Img = QImage(Img.data,W,H,P,QImage.Format_RGB888).rgbSwapped()
             pixmap = QPixmap.fromImage(Img)
             Item = QGraphicsPixmapItem(pixmap)
-
             self.graphicsView_3Scene = QGraphicsScene()
             self.graphicsView_3Scene.addItem(Item)
             self.graphicsView_3.setSceneRect(0,0,500,50)
@@ -161,12 +186,11 @@ class Ui_MainWindow(object):
             self.graphicsView_3.setScene(self.graphicsView_3Scene)
             backImg = self.image.remove_back_img.copy()
             cv2.rectangle(backImg,(self.image.W_start,self.image.H_start),(self.image.W_end,self.image.H_end),(0,0,255),2)
-            backImg = cv2.resize(backImg,(650,350),cv2.INTER_NEAREST)
+            backImg = cv2.resize(backImg,(550,350),cv2.INTER_NEAREST)
             H,W,_ = backImg.shape
             P = 3 * W
             backImg = QImage(backImg.data,W,H,P,QImage.Format_RGB888).rgbSwapped()
             pixmap = QPixmap.fromImage(backImg)
-
             self.graphicsView.setItem(pixmap)
             self.graphicsView.Scene()
 
@@ -175,6 +199,7 @@ class Ui_MainWindow(object):
             Img = backImg[int(self.graphicsView.image_item.start_point.y()):int(self.graphicsView.image_item.end_point.y()),
             int(self.graphicsView.image_item.start_point.x()):int(self.graphicsView.image_item.end_point.x())]
             Img = cv2.resize(Img,(500,50),cv2.INTER_NEAREST)
+            self.img = Img
             Img = QImage(Img.data,500,50,1500,QImage.Format_RGB888).rgbSwapped()
             pixmap = QPixmap.fromImage(Img)
             Item = QGraphicsPixmapItem(pixmap)
@@ -188,7 +213,7 @@ class Ui_MainWindow(object):
         if self.radioButton.isChecked() == True:
             self.graphicsView.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.CrossCursor))
             backImg = self.image.remove_back_img
-            backImg = cv2.resize(backImg,(650,350),cv2.INTER_NEAREST)
+            backImg = cv2.resize(backImg,(550,350),cv2.INTER_NEAREST)
             H,W,_ = backImg.shape
             P = 3 * W
             backImg = QImage(backImg.data,W,H,P,QImage.Format_RGB888).rgbSwapped()
@@ -197,6 +222,14 @@ class Ui_MainWindow(object):
             self.graphicsView.Scene()
             self.graphicsView.image_item.setStart(True)
             print(self.graphicsView.image_item.isStart)
-        elif self.radioButton.isChecked() == True:
+            
+        elif self.radioButton.isChecked() == False:
             self.graphicsView.image_item.setStart(False)
             self.graphicsView.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.ArrowCursor))
+
+    def recognition(self):
+        img = self.img
+        res = single_recognition(img,model_dir)
+        self.label.setText(res)
+        self.label.setAlignment(Qt.AlignCenter)
+

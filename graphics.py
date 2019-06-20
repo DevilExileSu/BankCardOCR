@@ -52,7 +52,6 @@ class GraphicsPixmapItem(QGraphicsPixmapItem):
         
     def paint(self, painter, QStyleOptionGraphicsItem, QWidget):
         super(GraphicsPixmapItem, self).paint(painter, QStyleOptionGraphicsItem, QWidget)
-
         if self.isStart == True:
             pen = QPen()
             pen.setColor(QColor(255, 0, 0))
