@@ -28,4 +28,4 @@ pip3 install PyQt5==5.12.2
 
 ---
 # 启动demo
-执行demo.py打开银行卡号识别的GUI界面。batch_test.py用于对银行卡进行批量识别，将要识别的银行卡放在同目录下的test_images文件中。定位结果以及识别结果存放在test_results中。
+进入demo文件目录下，执行demo.py打开银行卡号识别的GUI界面。batch_test.py用于对银行卡进行批量识别，将要识别的银行卡放在同目录下的test_images文件中。定位结果以及识别结果存放在test_results中。

@@ -10,7 +10,6 @@ import multiprocessing
 
 PATH = 'train_img/'
 
-
 def rand(a=0, b=1):
     return np.random.rand()*(b-a) + a
 
@@ -205,15 +204,23 @@ if __name__ == '__main__':
             boxes.append(img_name[i])
         annotation[PATH + img_name] = boxes
 
+    '''
+    多进程处理数据，windows下测试出错
+    '''
     pool = multiprocessing.Pool(10)
     for img_name in img_list:
         img = cv2.imread(PATH + img_name ,-1)
         pool.apply_async(main,(img,img_name,annotation,))
-        
-
     pool.close()
     pool.join()
     
+    '''
+    非多进程处理数据
+    '''
+    # for img_name in img_list:
+    #     img = cv2.imread(PATH + img_name,-1)
+    #     main(img,img_name,annotation)
+
     train_file = open('train.txt','w')
     val_file = open('val.txt','w')
     val_split = 0.1
