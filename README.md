@@ -28,4 +28,10 @@ pip3 install PyQt5==5.12.2
 
 ---
 # 启动demo
-进入demo文件目录下，执行demo.py打开银行卡号识别的GUI界面。batch_test.py用于对银行卡进行批量识别，将要识别的银行卡放在同目录下的test_images文件中。定位结果以及识别结果存放在test_results中。
+执行demo.py打开银行卡号识别的GUI界面。batch_test.py用于对银行卡进行批量识别，将要识别的银行卡放在同目录下的test_images文件中。定位结果以及识别结果存放在test_results中。
+
+# 训练模型
+在train文件中首先执行datasets.py进行数据增强，并生成对应图片路径及标签文件，再执行run.py文件开始模型的训练，训练大概20个epoch后loss不再收敛可以停止。训练的模型被保存在train/model中。
+
+# 测试模型
+选取银行卡图片进行测试时，银行卡尽量充满图片，横向放置。
